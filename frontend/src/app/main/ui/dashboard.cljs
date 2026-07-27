@@ -210,7 +210,7 @@
 
     (mf/with-layout-effect
       [plugin-url team-id project-id]
-      (when plugin-url
+      (when (and plugin-url project-id)
         (->> (dp/fetch-manifest plugin-url)
              (rx/subs!
               (fn [plugin]
