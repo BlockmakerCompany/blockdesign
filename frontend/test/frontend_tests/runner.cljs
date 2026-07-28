@@ -29,6 +29,7 @@
    [frontend-tests.logic.groups-test]
    [frontend-tests.logic.nudge-selected-shapes-test]
    [frontend-tests.logic.pasting-in-containers-test]
+   [frontend-tests.logic.wasm-modifiers-nil-id-test]
    [frontend-tests.main-errors-test]
    [frontend-tests.plugins.comments-test]
    [frontend-tests.plugins.context-shapes-test]
@@ -108,6 +109,7 @@
    'frontend-tests.logic.groups-test
    'frontend-tests.logic.nudge-selected-shapes-test
    'frontend-tests.logic.pasting-in-containers-test
+   'frontend-tests.logic.wasm-modifiers-nil-id-test
    'frontend-tests.plugins.context-shapes-test
    'frontend-tests.plugins.comments-test
    'frontend-tests.plugins.file-test
