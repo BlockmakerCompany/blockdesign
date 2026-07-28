@@ -10,6 +10,7 @@
   (:require
    [app.common.data :as d]
    [app.common.exceptions :as ex]
+   [app.common.media :as cm]
    [app.common.schema :as sm]
    [app.common.time :as ct]
    [app.common.types.organization :refer [schema:team-with-organization schema:organization-with-avatar]]
@@ -124,6 +125,7 @@
    ::sm/params schema:upload-org-logo
    ::sm/result schema:upload-org-logo-result}
   [{:keys [::sto/storage]} {:keys [content organization-id previous-id]}]
+  (media/validate-media-type! content cm/image-types)
   (when previous-id
     (sto/touch-object! storage previous-id))
   (let [hash (sto/calculate-hash (:path content))
