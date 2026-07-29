@@ -4,7 +4,7 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
-(ns app.render-wasm.api.shapes
+(ns app.render-wasm-common.api.shapes
   "Batched shape property serialization for improved WASM performance.
 
    This module provides a single WASM call to set all base shape properties,
@@ -14,10 +14,10 @@
    [app.common.data :as d]
    [app.common.data.macros :as dm]
    [app.common.uuid :as uuid]
-   [app.render-wasm.helpers :as h]
-   [app.render-wasm.mem :as mem]
-   [app.render-wasm.serializers :as sr]
-   [app.render-wasm.wasm :as wasm]))
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.mem :as mem]
+   [app.render-wasm-common.serializers :as sr]
+   [app.render-wasm-common.wasm :as wasm]))
 
 ;; Binary layout constants matching Rust implementation:
 ;;

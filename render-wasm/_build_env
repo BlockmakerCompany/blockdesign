@@ -99,5 +99,5 @@ function copy_artifacts {
 
 function copy_shared_artifact {
     SHARED_FILE=$(find target/wasm32-unknown-emscripten -name render_wasm_shared.js | head -n 1);
-    cp $SHARED_FILE ../frontend/src/app/render_wasm/api/shared.js;
+    cp $SHARED_FILE ../frontend/common/src/app/render_wasm_common/api/shared.js;
 }

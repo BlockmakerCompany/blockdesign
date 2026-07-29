@@ -69,7 +69,7 @@ opencode.json
 /frontend/package-lock.json
 /frontend/resources/fonts/experiments
 /frontend/resources/public/*
-/frontend/src/app/render_wasm/api/shared.js
+/frontend/common/src/app/render_wasm_common/api/shared.js
 /frontend/storybook-static/
 /frontend/target/
 /frontend/test-results/

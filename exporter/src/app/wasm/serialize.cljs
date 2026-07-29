@@ -14,10 +14,10 @@
   Covers everything except svg-raw. Image bytes and fonts are provisioned
   separately by `app.renderer.wasm`."
   (:require
-   [app.render-wasm.api.props :as props]
-   [app.render-wasm.helpers :as h]
-   [app.render-wasm.serialize-shape :as serialize-shape]
-   [app.render-wasm.wasm :as wasm]
+   [app.render-wasm-common.api.props :as props]
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.serialize-shape :as serialize-shape]
+   [app.render-wasm-common.wasm :as wasm]
    [app.wasm.text :as text]))
 
 (defn set-shape!

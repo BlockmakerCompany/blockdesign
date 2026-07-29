@@ -11,12 +11,12 @@
    [app.common.types.text :as txt]
    [app.common.uuid :as uuid]
    [app.main.fonts :as main-fonts]
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.mem :as mem]
+   [app.render-wasm-common.serializers :as sr]
+   [app.render-wasm-common.serializers.color :as sr-clr]
+   [app.render-wasm-common.wasm :as wasm]
    [app.render-wasm.api.fonts :as fonts]
-   [app.render-wasm.helpers :as h]
-   [app.render-wasm.mem :as mem]
-   [app.render-wasm.serializers :as sr]
-   [app.render-wasm.serializers.color :as sr-clr]
-   [app.render-wasm.wasm :as wasm]
    [app.util.color :as uc]
    [app.util.dom :as dom]))
 

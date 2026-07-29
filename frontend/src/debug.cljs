@@ -36,9 +36,9 @@
    [app.main.errors :as errors]
    [app.main.repo :as rp]
    [app.main.store :as st]
-   [app.render-wasm.helpers :as wasm.h]
-   [app.render-wasm.mem :as wasm.mem]
-   [app.render-wasm.wasm :as wasm]
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.mem :as mem]
+   [app.render-wasm-common.wasm :as wasm]
    [app.util.debug :as dbg]
    [app.util.dom :as dom]
    [app.util.http :as http]
@@ -128,14 +128,14 @@
    Returns a JS string (possibly empty)."
   [ptr]
   (when (and ptr (not (zero? ptr)))
-    (let [heap-u8  (wasm.mem/get-heap-u8)
-          heap-u32 (wasm.mem/get-heap-u32)
-          len      (aget heap-u32 (wasm.mem/->offset-32 ptr))
+    (let [heap-u8  (mem/get-heap-u8)
+          heap-u32 (mem/get-heap-u32)
+          len      (aget heap-u32 (mem/->offset-32 ptr))
           start    (+ ptr 4)
           end      (+ start len)
           decoder  (js/TextDecoder. "utf-8")
           text     (.decode decoder (.subarray heap-u8 start end))]
-      (wasm.mem/free)
+      (mem/free)
       text)))
 
 (defn ^:export wasmCaptureFrames
@@ -143,7 +143,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_capture_frames"))]
     (if (fn? f)
-      (wasm.h/call module "_capture_frames" amount)
+      (h/call module "_capture_frames" amount)
       (js/console.warn "[debug] render-wasm module not ready or missing _render_stats"))))
 
 (defn ^:export wasmRenderStats
@@ -151,7 +151,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_render_stats"))]
     (if (fn? f)
-      (wasm.h/call module "_render_stats")
+      (h/call module "_render_stats")
       (js/console.warn "[debug] render-wasm module not ready or missing _render_stats"))))
 
 (defn ^:export wasmAtlasConsole
@@ -160,7 +160,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_debug_atlas_console"))]
     (if (fn? f)
-      (wasm.h/call module "_debug_atlas_console")
+      (h/call module "_debug_atlas_console")
       (js/console.warn "[debug] render-wasm module not ready or missing _debug_atlas_console"))))
 
 (defn ^:export wasmAtlasBase64
@@ -169,7 +169,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_debug_atlas_base64"))]
     (if (fn? f)
-      (let [ptr (wasm.h/call module "_debug_atlas_base64")
+      (let [ptr (h/call module "_debug_atlas_base64")
             s   (or (wasm-read-len-prefixed-utf8 ptr) "")]
         s)
       (do
@@ -182,7 +182,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_debug_surface_console"))]
     (if (fn? f)
-      (wasm.h/call module "_debug_surface_console" id)
+      (h/call module "_debug_surface_console" id)
       (js/console.warn "[debug] render-wasm module not ready or missing _debug_surface_console"))))
 
 (defn ^:export wasmCacheConsole
@@ -191,7 +191,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_debug_cache_console"))]
     (if (fn? f)
-      (wasm.h/call module "_debug_cache_console")
+      (h/call module "_debug_cache_console")
       (js/console.warn "[debug] render-wasm module not ready or missing _debug_cache_console"))))
 
 (defn ^:export wasmCacheBase64
@@ -200,7 +200,7 @@
   (let [module wasm/internal-module
         f      (when module (unchecked-get module "_debug_cache_base64"))]
     (if (fn? f)
-      (let [ptr (wasm.h/call module "_debug_cache_base64")
+      (let [ptr (h/call module "_debug_cache_base64")
             s   (or (wasm-read-len-prefixed-utf8 ptr) "")]
         s)
       (do

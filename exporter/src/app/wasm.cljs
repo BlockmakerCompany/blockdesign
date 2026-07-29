@@ -20,10 +20,10 @@
    [app.common.logging :as l]
    [app.common.uuid :as uuid]
    [app.config :as cf]
-   [app.render-wasm.helpers :as h]
-   [app.render-wasm.mem :as mem]
-   [app.render-wasm.serializers :as sr]
-   [app.render-wasm.wasm :as wasm]
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.mem :as mem]
+   [app.render-wasm-common.serializers :as sr]
+   [app.render-wasm-common.wasm :as wasm]
    [promesa.core :as p]
    [shadow.esm :refer [dynamic-import]]))
 

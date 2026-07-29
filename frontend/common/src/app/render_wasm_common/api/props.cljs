@@ -4,7 +4,7 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
-(ns app.render-wasm.api.props
+(ns app.render-wasm-common.api.props
   "Browser-free WASM shape property setters, shared by the workspace render
   orchestrator (`app.render-wasm.api`) and the headless exporter
   (`app.wasm.serialize`).
@@ -18,12 +18,12 @@
    [app.common.types.fills :as types.fills]
    [app.common.types.fills.impl :as types.fills.impl]
    [app.common.types.path :as path]
-   [app.render-wasm.helpers :as h]
-   [app.render-wasm.mem :as mem]
-   [app.render-wasm.mem.heap32 :as mem.h32]
-   [app.render-wasm.serializers :as sr]
-   [app.render-wasm.serializers.color :as sr-clr]
-   [app.render-wasm.wasm :as wasm]))
+   [app.render-wasm-common.helpers :as h]
+   [app.render-wasm-common.mem :as mem]
+   [app.render-wasm-common.mem.heap32 :as mem.h32]
+   [app.render-wasm-common.serializers :as sr]
+   [app.render-wasm-common.serializers.color :as sr-clr]
+   [app.render-wasm-common.wasm :as wasm]))
 
 (def ^:const MAX_BUFFER_CHUNK_SIZE (* 256 1024))
 

@@ -4,12 +4,12 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
-(ns app.render-wasm.resources
+(ns app.render-wasm-common.resources
   "Host-agnostic enumeration of the external resources a scene needs to
   render: which image bytes its shapes reference. Pure data walking — no
   browser or Node dependencies — so the workspace and the headless exporter
   derive the same set from the same source (sibling of
-  `app.render-wasm.fallback-fonts`, which does the same for fonts)."
+  `app.render-wasm-common.fallback-fonts`, which does the same for fonts)."
   (:require
    [app.common.types.fills :as types.fills]))
 

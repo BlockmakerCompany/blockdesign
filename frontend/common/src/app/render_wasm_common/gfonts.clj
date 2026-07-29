@@ -4,8 +4,17 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
-(ns app.main.fonts
-  "A fonts loading macros."
+(ns app.render-wasm-common.gfonts
+  "Compile-time google fonts catalog macro, shared by the workspace and the
+  headless exporter. The catalog JSON lives in this module's `resources`, so
+  both hosts bake the same data from the same file.
+
+  NOTE: `parse-gfont` assigns each font a `uuid/random` *at macro-expansion
+  time*, and the frontend and the exporter are separate compilations — so they
+  bake DIFFERENT uuids for the same font. That is fine, because each host maps
+  font-id -> uuid -> ttf-url entirely within itself, and nothing ships a
+  google-font uuid across the wire. Do not start treating these uuids as
+  stable identifiers."
   (:require
    [app.common.uuid :as uuid]
    [clojure.data.json :as json]
@@ -47,6 +56,3 @@
   (let [data (slurp (io/resource path))
         data (json/read-str data)]
     `~(mapv parse-gfont (get data "items"))))
-
-
-

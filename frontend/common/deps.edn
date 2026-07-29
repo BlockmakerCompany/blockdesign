@@ -1,0 +1,5 @@
+;; `resources` carries the google fonts catalog, baked in at compile time by the
+;; `wasm.gfonts/preload-gfonts` macro on both the frontend and the exporter.
+{:paths ["src" "resources"]
+ :deps
+ {penpot/common {:local/root "../../common"}}}

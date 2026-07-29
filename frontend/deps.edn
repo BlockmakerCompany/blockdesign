@@ -3,6 +3,11 @@
  {penpot/common
   {:local/root "../common"}
 
+  ;; Host-agnostic CLJS side of the render-wasm binary protocol, shared with
+  ;; the headless exporter so the two cannot drift.
+  penpot/frontend-common
+  {:local/root "common"}
+
   org.clojure/clojure {:mvn/version "1.12.2"}
   binaryage/devtools {:mvn/version "RELEASE"}
   metosin/reitit-core {:mvn/version "0.9.1"}

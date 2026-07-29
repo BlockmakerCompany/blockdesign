@@ -4,7 +4,7 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
-(ns app.render-wasm.wasm
+(ns app.render-wasm-common.wasm
   (:require ["./api/shared.js" :as shared]))
 
 (defonce internal-frame-id nil)

@@ -4,7 +4,7 @@
 ;;
 ;; Copyright (c) KALEIDOS INC Sucursal en España SL
 
- (ns app.render-wasm.serializers
+ (ns app.render-wasm-common.serializers
    (:require
     [app.common.data :as d]
     [app.common.data.macros :as dm]
@@ -12,8 +12,8 @@
     [app.common.types.color :as clr]
     [app.common.types.shape-tree :as ctst]
     [app.common.uuid :as uuid]
-    [app.render-wasm.serializers.color :as sr-clr]
-    [app.render-wasm.wasm :as wasm]
+    [app.render-wasm-common.serializers.color :as sr-clr]
+    [app.render-wasm-common.wasm :as wasm]
     [cuerdas.core :as str]))
 
 (defn u8

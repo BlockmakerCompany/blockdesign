@@ -1,4 +1,4 @@
-(ns app.render-wasm.serializers.color
+(ns app.render-wasm-common.serializers.color
   (:require
    [app.common.math :as mth]))
 
