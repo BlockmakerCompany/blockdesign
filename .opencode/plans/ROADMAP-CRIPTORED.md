@@ -10,6 +10,18 @@ La auditoría de seguridad realizada por Criptored identificó **35 hallazgos** 
 
 Este documento es el **tablero de progreso** de alto nivel. Cada entrada requerirá su propio plan detallado de implementación.
 
+## Resumen de cobertura
+
+| Estado | Count | Hallazgos |
+|--------|-------|-----------|
+| `pending` | 8 | T1-N1-05, T1-N1-11, T1-N1-12, T1-N2-00, T1-N2-03, T1-N2-06, T1-N2-08, T2-N2-01 |
+| `planning` | 0 | — |
+| `in-progress` | 0 | — |
+| `done` | 21 | T1-N1-03, T1-N1-04, T1-N1-06, T1-N1-07, T1-N1-08, T1-N1-09, T1-N1-10, T1-N1-13, T1-N1-14, T1-N1-16, T1-N2-01, T1-N2-02, T1-N2-04, T1-N2-05, T1-N2-07, T1-N2-11, T1-N2-13, T2-N1-01, T2-N1-02, T2-N2-02, T2-N2-03 |
+| `wont-fix` | 6 | T1-N1-01, T1-N1-02, T1-N1-15, T1-N2-09, T1-N2-10, T1-N2-12 |
+| `deferred` | 0 | — |
+| **Total** | **35** | T1-N1-01..T1-N1-16, T1-N2-00..T1-N2-13, T2-N1-01..T2-N1-02, T2-N2-01..T2-N2-03 |
+
 ## Estados
 
 | Estado | Significado |
@@ -139,8 +151,8 @@ La inmensa mayoría de hallazgos afectan al **backend** (`backend/`), con alguno
 | 22 | Enumeración de usuarios en cambio de correo | T1-N1-02 | **Baja** | `wont-fix` | Design decision. Many services reveal email existence; not considered worth implementing. | [T1-N1-02](./REPORT-1.md#L91) |
 | 23 | Oráculo de existencia de ficheros (create-file) | T1-N2-04 | **Baja** | `done` | Fix: capture unique constraint violation in insert-file! and return normalized :not-found error | [T1-N2-04](./REPORT-1.md#L717) |
 | 24 | Enumeración de recursos en múltiples endpoints | T1-N2-05 | **Baja** | `done` | Fix: add permission checks to WebSocket subscribe-file and subscribe-team handlers | [T1-N2-05](./REPORT-1.md#L743) |
-| 25 | Divulgación excesiva en report.txt del cliente | T1-N2-09 | **Baja** | `pending` | | [T1-N2-09](./REPORT-1.md#L860) |
-| 26 | Eco de entrada sin filtrar | T1-N1-04 | **Baja** | `pending` | | [T1-N1-04](./REPORT-1.md#L135) |
+| 25 | Divulgación excesiva en report.txt del cliente | T1-N2-09 | **Baja** | `wont-fix` | The report.txt is intentionally designed to provide detailed debugging information so users can report issues. Removing information would defeat its purpose. | [T1-N2-09](./REPORT-1.md#L860) |
+| 26 | Eco de entrada sin filtrar | T1-N1-04 | **Baja** | `done` | Fix: normalize string inputs (trim whitespace) in profile, team, and project handlers via shared helper in app.common.data | [T1-N1-04](./REPORT-1.md#L135) |
 | 27 | Respuestas de validación excesivamente verbosas | T2-N2-01 | **Baja** | `pending` | | [T2-N2-01](./REPORT-2.md#L154) |
 
 ### P6 — Validación de entrada / Robustez
@@ -165,17 +177,3 @@ La inmensa mayoría de hallazgos afectan al **backend** (`backend/`), con alguno
 | # | Entrada | Hallazgos | Severidad | Estado | Anotación | Referencia |
 |---|---------|-----------|-----------|--------|-----------|------------|
 | 35 | UUID potencialmente predecibles | T1-N2-00 | **A verificar** | `pending` | UUID design is explicit; until there's a concrete improvement without breaking current properties, it won't change. | [T1-N2-00](./REPORT-1.md#L630) |
-
----
-
-## Resumen de cobertura
-
-| Estado | Count | Hallazgos |
-|--------|-------|-----------|
-| `pending` | 10 | T1-N1-04, T1-N1-05, T1-N1-11, T1-N1-12, T1-N2-00, T1-N2-03, T1-N2-06, T1-N2-08, T1-N2-09, T2-N2-01 |
-| `planning` | 0 | — |
-| `in-progress` | 0 | — |
-| `done` | 20 | T1-N1-03, T1-N1-06, T1-N1-07, T1-N1-08, T1-N1-09, T1-N1-10, T1-N1-13, T1-N1-14, T1-N1-16, T1-N2-01, T1-N2-02, T1-N2-04, T1-N2-05, T1-N2-07, T1-N2-11, T1-N2-13, T2-N1-01, T2-N1-02, T2-N2-02, T2-N2-03 |
-| `wont-fix` | 5 | T1-N1-01, T1-N1-02, T1-N1-15, T1-N2-10, T1-N2-12 |
-| `deferred` | 0 | — |
-| **Total** | **35** | T1-N1-01..T1-N1-16, T1-N2-00..T1-N2-13, T2-N1-01..T2-N1-02, T2-N2-01..T2-N2-03 |
