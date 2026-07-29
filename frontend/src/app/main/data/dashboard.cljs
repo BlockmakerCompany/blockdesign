@@ -706,7 +706,7 @@
       (let [current-team-id (:current-team-id state)
             organization    (:organization team)
             current-team?   (= (:id team) current-team-id)]
-        (when (and (contains? cf/flags :nitrate)
+        (when (and (contains? cf/flags :admin-console)
                    current-team?)
           (rx/concat
            (when notification
@@ -718,7 +718,7 @@
              (check-team-sso current-team-id))))))
     ptk/UpdateEvent
     (update [_ state]
-      (if (contains? cf/flags :nitrate)
+      (if (contains? cf/flags :admin-console)
         (let [team-id      (:id team)
               team-name    (:name team)
               organization (:organization team)]
@@ -733,7 +733,7 @@
   (ptk/reify ::handle-user-org-change
     ptk/WatchEvent
     (watch [_ state _]
-      (when (and notification (contains? cf/flags :nitrate))
+      (when (and notification (contains? cf/flags :admin-console))
         (let [team-id (:current-team-id state)
               team    (dm/get-in state [:teams team-id])]
           (rx/of (ntf/show {:content (tr notification organization-name)
@@ -751,7 +751,7 @@
   (ptk/reify ::handle-organization-deleted
     ptk/WatchEvent
     (watch [_ state _]
-      (when (contains? cf/flags :nitrate)
+      (when (contains? cf/flags :admin-console)
         (let [team-id        (:current-team-id state)
               current-team   (dm/get-in state [:teams team-id])
               current-org-id (dm/get-in current-team [:organization :id])
@@ -777,7 +777,7 @@
   (ptk/reify ::handle-nitrate-change-sso
     ptk/WatchEvent
     (watch [_ state _]
-      (when (contains? cf/flags :nitrate)
+      (when (contains? cf/flags :admin-console)
         (let [team-id (:current-team-id state)
               team    (dm/get-in state [:teams team-id])
               org-id  (dm/get-in team [:organization :id])]

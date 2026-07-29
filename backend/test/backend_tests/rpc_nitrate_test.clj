@@ -832,7 +832,7 @@
         org-id-1      (uuid/random)
         org-id-2      (uuid/random)
         calls         (atom [])]
-    (with-redefs [cf/flags (conj cf/flags :nitrate)
+    (with-redefs [cf/flags (conj cf/flags :admin-console)
                   nitrate/call (fn [_cfg method params]
                                  (swap! calls conj [method params])
                                  (case method
@@ -863,7 +863,7 @@
         org-id-1      (uuid/random)
         org-id-2      (uuid/random)
         calls         (atom [])]
-    (with-redefs [cf/flags (conj cf/flags :nitrate)
+    (with-redefs [cf/flags (conj cf/flags :admin-console)
                   nitrate/call (fn [_cfg method params]
                                  (swap! calls conj [method params])
                                  (case method
@@ -967,7 +967,7 @@
                     :role "editor"
                     :valid-until (ct/in-future "48h")})
 
-    (with-redefs [cf/flags (conj cf/flags :nitrate)
+    (with-redefs [cf/flags (conj cf/flags :admin-console)
                   nitrate/call (add-team-to-org-nitrate-mock
                                 {:org-id org-id
                                  :org-summary org-summary
@@ -1017,7 +1017,7 @@
                     :role "editor"
                     :valid-until (ct/in-future "48h")})
 
-    (with-redefs [cf/flags (conj cf/flags :nitrate)
+    (with-redefs [cf/flags (conj cf/flags :admin-console)
                   nitrate/call (add-team-to-org-nitrate-mock
                                 {:org-id org-id
                                  :org-summary org-summary
@@ -1039,7 +1039,7 @@
         nitrate-id "nitrate-instance-1"
         public-key "-----BEGIN PUBLIC KEY-----\nMIIB\n-----END PUBLIC KEY-----"
         now        (ct/now)]
-    (with-redefs [cf/flags     (conj cf/flags :nitrate)
+    (with-redefs [cf/flags     (conj cf/flags :admin-console)
                   ct/now       (constantly now)
                   nitrate/call (fn [_cfg method _params]
                                  (t/is (= :get-identity method))
@@ -1068,7 +1068,7 @@
 
 (t/deftest get-nitrate-activation-code-request-identity-unavailable
   (let [profile (th/create-profile* 1 {:is-active true})]
-    (with-redefs [cf/flags     (conj cf/flags :nitrate)
+    (with-redefs [cf/flags     (conj cf/flags :admin-console)
                   nitrate/call (fn [_cfg _method _params] nil)]
       (let [out (th/command! {::th/type :get-nitrate-activation-code-request
                               ::rpc/profile-id (:id profile)})]

@@ -146,7 +146,7 @@
 
     ;; When nitrate is active and the team belongs to an org, check that
     ;; the email is already an org member unless the org explicitly allows adding anybody.
-    (when (and (contains? cf/flags :nitrate)
+    (when (and (contains? cf/flags :admin-console)
                (:organization team))
       (assert-email-can-be-invited member org-member-ids))
 
@@ -165,7 +165,7 @@
 
         (if organization
           ;; Insert the invited member to the org
-          (when (contains? cf/flags :nitrate)
+          (when (contains? cf/flags :admin-console)
             (teams/initialize-user-in-nitrate-org cfg (:id member) (:id organization) email))
           ;; Insert the invited member to the team
           (teams/add-profile-to-team! cfg params {::db/on-conflict-do-nothing? true}))
@@ -232,7 +232,7 @@
 
           (when (allow-invitation-emails? member)
             (if organization
-              (when (contains? cf/flags :nitrate)
+              (when (contains? cf/flags :admin-console)
                 (eml/send! {::eml/conn conn
                             ::eml/factory eml/invite-to-org
                             :public-uri (cf/get :public-uri)
@@ -325,7 +325,7 @@
   - invitations (vector of {:email :role} maps)"
   [{:keys [::db/conn] :as cfg} {:keys [profile team role emails invitations] :as params}]
   (let [;; Enrich team with org info once for all invitations when nitrate is active
-        team             (if (contains? cf/flags :nitrate)
+        team             (if (contains? cf/flags :admin-console)
                            (nitrate/add-org-info-to-team cfg team {})
                            team)
         org              (:organization team)

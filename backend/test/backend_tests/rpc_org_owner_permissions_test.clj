@@ -28,7 +28,7 @@
 
 (defn- with-org-owner-access
   [{:keys [org-owner-id org-id team-id]} f]
-  (with-redefs [cf/flags (conj cf/flags :nitrate)
+  (with-redefs [cf/flags (conj cf/flags :admin-console)
                 nitrate/organization-owner-of-team?
                 (fn [_cfg profile-id candidate-team-id]
                   (and (= org-owner-id profile-id)

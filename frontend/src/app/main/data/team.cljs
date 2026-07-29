@@ -41,7 +41,7 @@
   default team when the candidate requires SSO and the user has no
   valid SSO session for it."
   [{:keys [team-id default-team-id]}]
-  (if (or (not (contains? cf/flags :nitrate))
+  (if (or (not (contains? cf/flags :admin-console))
           (= team-id default-team-id))
     (rx/of team-id)
     (->> (rp/cmd! :check-nitrate-sso {:team-id team-id :url (rt/get-current-href)})
@@ -115,7 +115,7 @@
         (with-refreshed-team team-id
           (fn [team]
             (let [organization (:organization team)
-                  in-org?      (and (contains? cf/flags :nitrate) organization)
+                  in-org?      (and (contains? cf/flags :admin-console) organization)
                   can-create?  (if in-org?
                                  (nitrate-perms/allowed? :create-team
                                                          {:org-perms {:owner-id    (:owner-id organization)
@@ -141,7 +141,7 @@
         (with-refreshed-team team-id
           (fn [team]
             (let [org         (:organization team)
-                  in-org?     (and (contains? cf/flags :nitrate) org)
+                  in-org?     (and (contains? cf/flags :admin-console) org)
                   can-delete? (if in-org?
                                 (nitrate-perms/allowed? :delete-team
                                                         {:org-perms {:owner-id    (:owner-id org)
@@ -172,7 +172,7 @@
                                             :team team
                                             :origin (or origin :team)
                                             :invite-email invite-email}))]
-        (if (and (contains? cf/flags :nitrate)
+        (if (and (contains? cf/flags :admin-console)
                  (not (nitrate-perms/allowed? :add-anybody-to-team
                                               {:org-perms (:organization team)})))
           (->> (rp/cmd! :all-org-members-in-team
@@ -203,7 +203,7 @@
           (fn [team]
             (let [org         (:organization team)
                   can-invite? (nitrate-perms/can-send-invitations?
-                               {:nitrate-enabled? (contains? cf/flags :nitrate)
+                               {:nitrate-enabled? (contains? cf/flags :admin-console)
                                 :organization org
                                 :profile-id profile-id
                                 :team-permissions (:permissions team)})]
@@ -595,7 +595,7 @@
   (ptk/reify ::check-and-submit-invite-members
     ptk/WatchEvent
     (watch [_ _ _]
-      (if (contains? cf/flags :nitrate)
+      (if (contains? cf/flags :admin-console)
         (with-refreshed-team team-id
           (fn [team]
             (if (not (nitrate-perms/allowed? :add-anybody-to-team

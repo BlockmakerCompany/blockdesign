@@ -31,7 +31,7 @@
 (defn- org-sso-active?
   "Return whether SSO is enabled for the organization."
   [cfg organization-id]
-  (when (contains? cf/flags :nitrate)
+  (when (contains? cf/flags :admin-console)
     (true? (:active (nitrate/call cfg :get-org-sso {:organization-id organization-id})))))
 
 (def ^:private xf:map-email (map :email))

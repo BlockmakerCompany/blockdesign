@@ -49,7 +49,7 @@
   "Joins relative path segments to the Nitrate backend URI.
    Segments must not start with `/`"
   [& segments]
-  (apply join-base-uri (cf/get :nitrate-backend-uri) segments))
+  (apply join-base-uri (cf/get :admin-console-uri) segments))
 
 (defn- generate-public-uri
   "Joins relative path segments to the public backend URI.
@@ -143,7 +143,7 @@
 
 (defn- request-to-nitrate
   [cfg method uri schema {:keys [::rpc/profile-id request-params throw-on-error?] :as params}]
-  (let [shared-key     (-> cfg ::setup/shared-keys :nitrate)
+  (let [shared-key     (-> cfg ::setup/shared-keys :admin-console)
         full-http-call (-> (request-builder cfg method uri shared-key profile-id request-params)
                            (with-retries 3)
                            (with-validate uri schema :throw-on-error? throw-on-error?))]
@@ -155,7 +155,7 @@
 
 (defn call
   [cfg method params]
-  (when (contains? cf/flags :nitrate)
+  (when (contains? cf/flags :admin-console)
     (let [client (get cfg ::client)
           method (get client method)]
       (method params))))
@@ -482,7 +482,7 @@
 
 (defmethod ig/init-key ::client
   [_ cfg]
-  (when (contains? cf/flags :nitrate)
+  (when (contains? cf/flags :admin-console)
     {:get-team-org                 (partial get-team-org-api cfg)
      :set-team-org                 (partial set-team-org-api cfg)
      :get-org-membership           (partial get-org-membership-api cfg)
@@ -544,7 +544,7 @@
   callers are unaffected. Returns false when the :nitrate flag is off."
   [cfg profile-id team-id]
   (boolean
-   (when (and (contains? cf/flags :nitrate)
+   (when (and (contains? cf/flags :admin-console)
               (nitrate-client? cfg)
               (some? team-id)
               (some? profile-id))

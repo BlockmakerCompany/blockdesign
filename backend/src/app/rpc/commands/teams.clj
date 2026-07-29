@@ -197,9 +197,9 @@
   [{:keys [::db/pool] :as cfg} {:keys [::rpc/profile-id] :as params}]
   (dm/with-open [conn (db/open pool)]
     (cond->> (get-teams conn profile-id)
-      (contains? cf/flags :nitrate)
+      (contains? cf/flags :admin-console)
       (map #(nitrate/add-org-info-to-team cfg % params))
-      (contains? cf/flags :nitrate)
+      (contains? cf/flags :admin-console)
       (remove #(get-in % [:organization :expired-license])))))
 
 (def ^:private sql:get-owned-teams
@@ -244,7 +244,7 @@
    ::sm/params schema:get-team}
   [cfg {:keys [::rpc/profile-id id file-id] :as params}]
   (let [team (get-team cfg :profile-id profile-id :team-id id :file-id file-id)]
-    (if (contains? cf/flags :nitrate)
+    (if (contains? cf/flags :admin-console)
       (nitrate/add-org-info-to-team cfg team params)
       team)))
 
@@ -537,7 +537,7 @@
 
   ;; When creating inside an org, verify the user has permission to do so.
   ;; Fail closed: if org permissions cannot be fetched, deny the operation.
-  (when (and organization-id (contains? cf/flags :nitrate))
+  (when (and organization-id (contains? cf/flags :admin-console))
     (let [org-perms (nitrate/call cfg :get-org-permissions
                                   {:organization-id organization-id})]
       (if (nil? org-perms)
@@ -587,7 +587,7 @@
   ([cfg profile-id organization-id email]
    (assert (db/connection-map? cfg)
            "expected cfg with valid connection")
-   (when (contains? cf/flags :nitrate)
+   (when (contains? cf/flags :admin-console)
      (db/tx-run!
       cfg
       (fn [{:keys [::db/conn] :as tx-cfg}]
@@ -621,7 +621,7 @@
   ([{:keys [::db/conn] :as cfg} {:keys [:profile-id :team-id] :as params} options]
    (assert (db/connection-map? cfg)
            "expected cfg with valid connection")
-   (when (contains? cf/flags :nitrate)
+   (when (contains? cf/flags :admin-console)
      (let [membership (nitrate/call cfg :get-org-membership-by-team {:profile-id profile-id :team-id team-id})]
        ;; Only when the team belong to an organization and the user is not a member
        (when (and
@@ -643,7 +643,7 @@
         project (create-team-default-project conn params)]
     (create-team-role cfg params)
     ;; Set team organization in Nitrate if organization-id is provided
-    (when (and (contains? cf/flags :nitrate) (:organization-id params))
+    (when (and (contains? cf/flags :admin-console) (:organization-id params))
       (nitrate/set-team-organization cfg team params))
     (assoc team :default-project-id (:id project))))
 
@@ -803,12 +803,12 @@
   [{:keys [::db/conn] :as cfg} {:keys [profile-id team-id] :as params}]
 
   (let [team  (get-team conn :profile-id profile-id :team-id team-id)
-        team  (if (contains? cf/flags :nitrate)
+        team  (if (contains? cf/flags :admin-console)
                 (nitrate/add-org-info-to-team cfg team params)
                 team)
         perms (get team :permissions)
         org   (:organization team)
-        in-org? (and (contains? cf/flags :nitrate) org)
+        in-org? (and (contains? cf/flags :admin-console) org)
         can-delete?
         (if in-org?
           (nitrate-perms/allowed? :delete-team
@@ -836,7 +836,7 @@
                             {::db/return-keys true})]
 
       ;; Api call to nitrate
-      (when (contains? cf/flags :nitrate)
+      (when (contains? cf/flags :admin-console)
         (nitrate/call cfg :delete-team {:profile-id profile-id :team-id team-id}))
 
       (wrk/submit! {::db/conn conn

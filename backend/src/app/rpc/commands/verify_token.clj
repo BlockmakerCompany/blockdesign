@@ -87,7 +87,7 @@
 
 (defn- with-nitrate-licence
   [profile cfg]
-  (if (contains? cf/flags :nitrate)
+  (if (contains? cf/flags :admin-console)
     (nitrate/add-nitrate-licence-to-profile cfg profile)
     profile))
 
@@ -125,7 +125,7 @@
 
           accepted-team-id (if organization-id
                              ;; Insert the invited member to the org
-                             (when (contains? cf/flags :nitrate)
+                             (when (contains? cf/flags :admin-console)
                                (teams/initialize-user-in-nitrate-org cfg id-member organization-id member-email))
                              ;; Insert the invited member to the team
                              (do (teams/add-profile-to-team! cfg params {::db/on-conflict-do-nothing? true})
@@ -193,7 +193,7 @@
                                         {:columns [:id :email :default-team-id]})
         registration-disabled? (not (contains? cf/flags :registration))
 
-        org-invitation?        (and (contains? cf/flags :nitrate) organization-id)]
+        org-invitation?        (and (contains? cf/flags :admin-console) organization-id)]
 
     (if profile
       (do
