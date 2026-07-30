@@ -183,6 +183,10 @@
            (dom/blur! (dom/get-target event))
            (st/emit! (dwc/toggle-toolbar-visibility))))
 
+        toggle-assistant
+        (mf/use-fn
+         #(st/emit! (dw/toggle-layout-flag :blockdesign-assistant)))
+
         test-tooltip-board-text
         (if (not (:workspace-visited props))
           (tr "workspace.toolbar.frame-first-time" (sc/get-tooltip :draw-frame))
@@ -284,7 +288,19 @@
              deprecated-icon/bug]])
 
          (when (contains? cf/flags :mcp)
-           [:> mcp-indicator*])]]
+           [:> mcp-indicator*])
+
+         [:li
+          [:button
+           {:title (tr "blockdesign.assistant.title")
+            :aria-label (tr "blockdesign.assistant.title")
+            :class (stl/css-case :main-toolbar-options-button true
+                                 :assistant-button true
+                                 :selected (contains? layout :blockdesign-assistant))
+            :on-click toggle-assistant
+            :data-tool "blockdesign-assistant"
+            :data-testid "blockdesign-assistant-btn"}
+           "IA"]]]]
 
        [:button {:title (tr "workspace.toolbar.toggle-toolbar")
                  :aria-label (tr "workspace.toolbar.toggle-toolbar")

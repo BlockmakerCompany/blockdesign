@@ -8725,6 +8725,60 @@ msgstr "Ruta (%s)"
 msgid "workspace.toolbar.plugins"
 msgstr "Extensiones (%s)"
 
+msgid "blockdesign.assistant.title"
+msgstr "Asistente UI"
+
+msgid "blockdesign.assistant.subtitle"
+msgstr "Agente nativo de BlockDesign 2.0"
+
+msgid "blockdesign.assistant.welcome"
+msgstr "Decime qué querés crear o modificar. Voy a usar la selección actual y sus hijos como contexto."
+
+msgid "blockdesign.assistant.scope-selection"
+msgstr "Selección"
+
+msgid "blockdesign.assistant.scope-page"
+msgstr "Página"
+
+msgid "blockdesign.assistant.scope-new"
+msgstr "Nuevo"
+
+msgid "blockdesign.assistant.design-md"
+msgstr "Generar DESIGN.md"
+
+msgid "blockdesign.assistant.page-context"
+msgstr "%s capas de la página actual"
+
+msgid "blockdesign.assistant.selection-context"
+msgstr "%s capas en contexto"
+
+msgid "blockdesign.assistant.working"
+msgstr "Generando respuesta y aplicando cambios nativos…"
+
+msgid "blockdesign.assistant.placeholder"
+msgstr "Ejemplo: modernizá este componente y mejorá su jerarquía visual"
+
+msgid "blockdesign.assistant.send"
+msgstr "Enviar al agente"
+
+msgid "blockdesign.assistant.new-layer"
+msgstr "Nueva capa"
+
+msgid "blockdesign.assistant.page"
+msgstr "Página"
+
+msgid "blockdesign.assistant.applied"
+msgstr "Se aplicaron %s cambios nativos."
+
+msgid "blockdesign.assistant.design-md-ready"
+msgstr "DESIGN.md fue generado y descargado."
+
+msgid "blockdesign.assistant.request-error"
+msgstr "El asistente devolvió el error %s."
+
+msgid "blockdesign.assistant.network-error"
+msgstr "No se pudo conectar con el asistente."
+
 #: src/app/main/ui/workspace/top_toolbar.cljs:162
 msgid "workspace.toolbar.rect"
 msgstr "Rectángulo (%s)"
