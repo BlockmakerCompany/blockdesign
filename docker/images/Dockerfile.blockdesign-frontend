@@ -40,9 +40,15 @@ RUN pnpm install --frozen-lockfile
 
 # Rebrand user-facing source strings before compiling, then also process the
 # generated bundle so metadata and translations consistently use BlockDesign.
-RUN node ./scripts/rebrand-blockdesign.js src resources translations && \
+# A unique version tag prevents browsers from mixing bundles between deploys.
+RUN export NODE_ENV=production \
+           VERSION=2.16-blockdesign \
+           VERSION_TAG="2.16-blockdesign-$(date +%s)" && \
+    node ./scripts/rebrand-blockdesign.js src resources translations && \
     pnpm run build:app && \
     pnpm run build:app:assets && \
+    cp resources/public/js/render.js resources/public/js/worker/render.js && \
+    sed -i "s#\./render.js#./render.js?version=${VERSION_TAG}#g" resources/public/js/worker/main*.js && \
     node ./scripts/rebrand-blockdesign.js resources/public
 
 # ---------------------------------------------------------------------------
