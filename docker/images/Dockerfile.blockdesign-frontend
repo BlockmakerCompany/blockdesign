@@ -47,6 +47,7 @@ RUN export NODE_ENV=production \
     node ./scripts/rebrand-blockdesign.js src resources translations && \
     pnpm run build:app && \
     pnpm run build:app:assets && \
+    test -f resources/public/css/ui.css || : > resources/public/css/ui.css && \
     cp resources/public/js/render.js resources/public/js/worker/render.js && \
     sed -i "s#\./render.js#./render.js?version=${VERSION_TAG}#g" resources/public/js/worker/main*.js && \
     node ./scripts/rebrand-blockdesign.js resources/public
@@ -54,6 +55,8 @@ RUN export NODE_ENV=production \
 # ---------------------------------------------------------------------------
 # Stage 2 — Final image (same base as penpotapp/frontend:2.16)
 # ---------------------------------------------------------------------------
+FROM penpotapp/frontend:2.16 AS official-frontend
+
 FROM nginxinc/nginx-unprivileged:1.30.2-alpine
 LABEL maintainer="Blockmaker <hola@blockmaker.net>"
 
@@ -72,6 +75,11 @@ RUN set -ex; \
 
 # Copy compiled bundle from builder stage
 COPY --from=builder /build/frontend/resources/public/ /var/www/app/
+
+# The repository does not include the Emscripten output. Keep these artifacts
+# aligned with the backend version instead of enabling WASM with missing files.
+COPY --from=official-frontend /var/www/app/js/render-wasm.js /var/www/app/js/render-wasm.js
+COPY --from=official-frontend /var/www/app/js/render-wasm.wasm /var/www/app/js/render-wasm.wasm
 
 # Runtime config.js template — entrypoint injects PENPOT_FLAGS, PENPOT_PUBLIC_URI
 # and PENPOT_OIDC_NAME into this file at container start so OIDC login works.
