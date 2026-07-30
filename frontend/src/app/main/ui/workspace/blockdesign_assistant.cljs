@@ -5,11 +5,10 @@
 (ns app.main.ui.workspace.blockdesign-assistant
   (:require-macros [app.main.style :as stl])
   (:require
-   [app.common.types.shape.text :as txt]
+   [app.common.types.text :as txt]
    [app.common.uuid :as uuid]
    [app.main.data.workspace :as dw]
    [app.main.data.workspace.shapes :as dwsh]
-   [app.main.data.workspace.texts :as dwt]
    [app.main.refs :as refs]
    [app.main.store :as st]
    [app.render-wasm.api :as wasm.api]
@@ -36,11 +35,15 @@
            :opacity (:opacity shape)
            :hidden (:hidden shape)
            :blocked (:blocked shape)
-           :children (mapv str (:shapes shape))
-           :fills (mapv #(select-keys % [:fill-color :fill-opacity :fill-color-gradient]) (:fills shape))
-           :strokes (mapv #(select-keys % [:stroke-color :stroke-opacity :stroke-width :stroke-style]) (:strokes shape))}
+           :children (mapv str (or (:shapes shape) []))
+           :fills (mapv #(select-keys % [:fill-color :fill-opacity :fill-color-gradient]) (or (:fills shape) []))
+           :strokes (mapv #(select-keys % [:stroke-color :stroke-opacity :stroke-width :stroke-style]) (or (:strokes shape) []))}
     (= :text (:type shape))
-    (assoc :text (some-> (:content shape) txt/content->text))))
+    (assoc :text (try
+                   (some-> (:content shape) txt/content->text)
+                   (catch :default error
+                     (.warn js/console "Could not serialize text shape for assistant context" (:id shape) error)
+                     nil)))))
 
 (defn- context-shapes
   [scope selected objects]
@@ -51,7 +54,7 @@
                       selected))]
     (->> ids
          distinct
-         (keep #(get objects %))
+         (keep #(when (map? (get objects %)) (get objects %)))
          (take max-context-shapes)
          (mapv serialize-shape))))
 
@@ -66,6 +69,15 @@
   [operation]
   (some-> (:id operation) uuid/parse*))
 
+(defn- text-content
+  [text]
+  {:type "root"
+   :children
+   [{:type "paragraph-set"
+     :children
+     [{:type "paragraph"
+       :children [(merge (txt/get-default-text-attrs) {:text (or text "")})]}]}]})
+
 (defn- update-shape
   [shape operation]
   (let [fill (:fill operation)
@@ -78,7 +90,7 @@
       (:height operation) (assoc :height (:height operation))
       (:rotation operation) (assoc :rotation (:rotation operation))
       (:opacity operation) (assoc :opacity (:opacity operation))
-      (and (= :text (:type shape)) (:text operation)) (assoc-in [:content :ops 0 :insert] (:text operation))
+      (and (= :text (:type shape)) (:text operation)) (assoc :content (text-content (:text operation)))
       fill (assoc :fills [{:fill-color fill :fill-opacity 1}])
       stroke (assoc :strokes [{:stroke-color stroke :stroke-width (or (:strokeWidth operation) 1) :stroke-style "solid" :stroke-opacity 1}]))))
 
@@ -89,17 +101,23 @@
     (case action
       :update
       (if-let [shape (get objects id)]
-        (do (st/emit! (dwsh/update-shape id (update-shape shape operation)))
+        (do (st/emit! (dwsh/update-shapes [id] #(update-shape % operation)))
             true)
         false)
 
       :remove
-      (do (st/emit! (dwsh/remove-shapes #{id}))
+      (do (st/emit! (dwsh/delete-shapes #{id}))
           true)
 
       :create
-      (let [type (keyword (:type operation))
-            shape {:id id
+      (let [requested-type (keyword (:type operation))
+            type (case requested-type
+                   :rectangle :rect
+                   :ellipse :circle
+                   :board :frame
+                   :text :text
+                   :rect)
+            shape {:id (or id (uuid/next))
                    :type type
                    :name (or (:name operation) (tr "blockdesign.assistant.new-layer" "Nueva capa"))
                    :x (or (:x operation) 0)
@@ -107,20 +125,21 @@
                    :width (or (:width operation) 100)
                    :height (or (:height operation) 100)
                    :rotation 0
-                   :opacity 1}]
-        (case type
-          :rectangle
-          (st/emit! (dwsh/create-rect
-                     (cond-> shape
-                       (:fill operation)
-                       (assoc :fills [{:fill-color (:fill operation) :fill-opacity 1}]))))
-          :text
-          (st/emit! (dwt/create-text-shape
-                     (assoc shape :content {:ops [{:insert (or (:text operation) "")}]})))
-          (st/emit! (dwsh/create-rect
-                     (cond-> shape
-                       (:fill operation)
-                       (assoc :fills [{:fill-color (:fill operation) :fill-opacity 1}])))))
+                   :opacity 1}
+            shape (cond-> shape
+                    (:fill operation)
+                    (assoc :fills [{:fill-color (:fill operation) :fill-opacity 1}])
+
+                    (:stroke operation)
+                    (assoc :strokes [{:stroke-color (:stroke operation)
+                                      :stroke-width (or (:strokeWidth operation) 1)
+                                      :stroke-style "solid"
+                                      :stroke-opacity 1}])
+
+                    (= type :text)
+                    (assoc :content (text-content (:text operation))))]
+        (st/emit! (dwsh/create-and-add-shape type (:x shape) (:y shape) shape
+                                             (when (= type :text) {:skip-edition? true})))
         true)
 
       false)))
@@ -259,37 +278,38 @@
            (when (and selected-jira (not busy?))
              (reset! busy* true)
              (-> (wasm.api/capture-canvas-snapshot-url)
-                 (.then (fn [blob-url]
-                          (if blob-url
-                            (blob-url->base64
-                             blob-url
-                             (fn [base64-data]
-                               (let [comment-msg (js/prompt "Escribí un comentario opcional para Jira:" "")
-                                     payload {:imageBase64 base64-data
-                                              :previewUrl (.-href js/window.location)
-                                              :message (if (str/blank? comment-msg) "Captura de pantalla de la UI adjunta desde BlockDesign." comment-msg)}
-                                     request (http/send! {:method :post
-                                                          :uri (str "/assistant-api/jira/issues/" (:id selected-jira) "/comment")
-                                                          :response-type :json
-                                                          :headers {"content-type" "application/json"
-                                                                    "x-user-id" (some-> (:id profile) str)
-                                                                    "x-user-email" (or (:email profile) "")}
-                                                          :body (.stringify js/JSON (clj->js payload))})]
-                                 (rx/subs! request
-                                           (fn [{:keys [status body]}]
-                                             (if (<= 200 status 299)
-                                               (add-message! :assistant (str "✅ Captura publicada en Jira para el ticket: " (:id selected-jira)))
-                                               (add-message! :error "No se pudo publicar la captura en Jira."))
-                                             (reset! busy* false))
-                                           (fn [error]
-                                             (add-message! :error (ex-message error))
-                                             (reset! busy* false)))))
-                             (fn [err]
-                               (add-message! :error err)
-                               (reset! busy* false)))
-                            (do
-                              (add-message! :error "No se pudo realizar la captura del canvas.")
-                              (reset! busy* false))))))))))
+                 (.then
+                  (fn [blob-url]
+                    (if blob-url
+                      (blob-url->base64
+                       blob-url
+                       (fn [base64-data]
+                         (let [comment-msg (.prompt js/window "Escribí un comentario opcional para Jira:" "")
+                               payload {:imageBase64 base64-data
+                                        :previewUrl (.-href js/window.location)
+                                        :message (if (str/blank? comment-msg) "Captura de pantalla de la UI adjunta desde BlockDesign." comment-msg)}
+                               request (http/send! {:method :post
+                                                    :uri (str "/assistant-api/jira/issues/" (:id selected-jira) "/comment")
+                                                    :response-type :json
+                                                    :headers {"content-type" "application/json"
+                                                              "x-user-id" (some-> (:id profile) str)
+                                                              "x-user-email" (or (:email profile) "")}
+                                                    :body (.stringify js/JSON (clj->js payload))})]
+                           (rx/subs! request
+                                     (fn [{:keys [status]}]
+                                       (if (<= 200 status 299)
+                                         (add-message! :assistant (str "Captura publicada en Jira para el ticket: " (:id selected-jira)))
+                                         (add-message! :error "No se pudo publicar la captura en Jira."))
+                                       (reset! busy* false))
+                                     (fn [error]
+                                       (add-message! :error (ex-message error))
+                                       (reset! busy* false)))))
+                       (fn [error]
+                         (add-message! :error error)
+                         (reset! busy* false)))
+                      (do
+                        (add-message! :error "No se pudo realizar la captura del canvas.")
+                        (reset! busy* false)))))))))
 
         on-send
         (mf/use-fn
@@ -486,4 +506,4 @@
                     :class (stl/css :modal-confirm)
                     :disabled (and save-to-library (str/blank? save-project-name))
                     :on-click trigger-generate-design-md!}
-           "Generar"]]])]))
+           "Generar"]]]])]))
