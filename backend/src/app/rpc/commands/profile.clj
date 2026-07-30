@@ -11,7 +11,6 @@
    [app.common.exceptions :as ex]
    [app.common.schema :as sm]
    [app.common.time :as ct]
-   [app.common.types.plugins :refer [schema:plugin-registry]]
    [app.common.uuid :as uuid]
    [app.config :as cf]
    [app.db :as db]
@@ -46,8 +45,7 @@
    [:email-invites [::sm/one-of #{:all :none}]]])
 
 (def schema:props
-  [:map {:title "ProfileProps"}
-   [:plugins {:optional true} schema:plugin-registry]
+  [:map {:title "ProfileProps" :closed true}
    [:renderer {:optional true} [::sm/one-of #{:svg :wasm}]]
    [:mcp-enabled {:optional true} ::sm/boolean]
    [:newsletter-updates {:optional true} ::sm/boolean]
