@@ -163,14 +163,15 @@
                                        "x-user-id" (some-> (:id profile) str)
                                        "x-user-email" (or (:email profile) "")}
                              :body (.stringify js/JSON (clj->js payload))})]
-    (rx/subs! request
-              (fn [{:keys [status body]}]
-                (let [data (js->clj body :keywordize-keys true)]
-                  (if (<= 200 status 299)
-                    (on-success data)
-                    (on-error (or (:error data) (tr "blockdesign.assistant.request-error" "Error"))))))
-              (fn [error]
-                (on-error (or (ex-message error) (tr "blockdesign.assistant.network-error" "Error de red")))))))
+    (->> request
+         (rx/subs!
+          (fn [{:keys [status body]}]
+            (let [data (js->clj body :keywordize-keys true)]
+              (if (<= 200 status 299)
+                (on-success data)
+                (on-error (or (:error data) (tr "blockdesign.assistant.request-error" "Error"))))))
+          (fn [error]
+            (on-error (or (ex-message error) (tr "blockdesign.assistant.network-error" "Error de red"))))))))
 
 (defn- blob-url->base64
   [blob-url on-success on-error]
@@ -254,13 +255,14 @@
                                         :response-type :json
                                         :headers {"x-user-id" (some-> (:id profile) str)
                                                   "x-user-email" (or (:email profile) "")}})]
-               (rx/subs! request
-                         (fn [{:keys [status body]}]
-                           (let [data (js->clj body :keywordize-keys true)]
-                             (when (<= 200 status 299)
-                               (reset! jira-results* (:tasks data)))))
-                         (fn [error]
-                           (println "Jira search error:" error)))))))
+               (->> request
+                    (rx/subs!
+                     (fn [{:keys [status body]}]
+                       (let [data (js->clj body :keywordize-keys true)]
+                         (when (<= 200 status 299)
+                           (reset! jira-results* (:tasks data)))))
+                     (fn [error]
+                       (println "Jira search error:" error))))))))
 
         on-jira-search-change
         (mf/use-fn
@@ -295,15 +297,16 @@
                                                               "x-user-id" (some-> (:id profile) str)
                                                               "x-user-email" (or (:email profile) "")}
                                                     :body (.stringify js/JSON (clj->js payload))})]
-                           (rx/subs! request
-                                     (fn [{:keys [status]}]
-                                       (if (<= 200 status 299)
-                                         (add-message! :assistant (str "Captura publicada en Jira para el ticket: " (:id selected-jira)))
-                                         (add-message! :error "No se pudo publicar la captura en Jira."))
-                                       (reset! busy* false))
-                                     (fn [error]
-                                       (add-message! :error (ex-message error))
-                                       (reset! busy* false)))))
+                           (->> request
+                                (rx/subs!
+                                 (fn [{:keys [status]}]
+                                   (if (<= 200 status 299)
+                                     (add-message! :assistant (str "Captura publicada en Jira para el ticket: " (:id selected-jira)))
+                                     (add-message! :error "No se pudo publicar la captura en Jira."))
+                                   (reset! busy* false))
+                                 (fn [error]
+                                   (add-message! :error (ex-message error))
+                                   (reset! busy* false))))))
                        (fn [error]
                          (add-message! :error error)
                          (reset! busy* false)))
