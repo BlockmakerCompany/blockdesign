@@ -33,7 +33,8 @@
     :display-artboard-names
     :snap-ruler-guides
     :show-pixel-grid
-    :snap-pixel-grid})
+    :snap-pixel-grid
+    :blockdesign-assistant})
 
 (def presets
   {:assets

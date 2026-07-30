@@ -1,0 +1,157 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+@use "refactor/common-refactor.scss" as deprecated;
+
+.assistant-panel {
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100vh;
+  color: var(--color-foreground-primary);
+  background: var(--panel-background-color);
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: deprecated.$s-64;
+  padding: deprecated.$s-12 deprecated.$s-16;
+  border-bottom: deprecated.$s-1 solid var(--panel-border-color);
+
+  h2 {
+    margin: 0;
+    font-size: deprecated.$fs-14;
+  }
+
+  p {
+    margin: deprecated.$s-2 0 0;
+    color: var(--color-foreground-secondary);
+    font-size: deprecated.$fs-11;
+  }
+
+  button {
+    border: 0;
+    color: var(--color-foreground-secondary);
+    background: transparent;
+    cursor: pointer;
+    font-size: deprecated.$fs-24;
+  }
+}
+
+.assistant-scopes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: deprecated.$s-4;
+  margin: deprecated.$s-12 deprecated.$s-12 deprecated.$s-8;
+  padding: deprecated.$s-4;
+  border-radius: deprecated.$br-8;
+  background: var(--color-background-secondary);
+
+  button {
+    min-height: deprecated.$s-32;
+    border: 0;
+    border-radius: deprecated.$br-6;
+    color: var(--color-foreground-secondary);
+    background: transparent;
+    cursor: pointer;
+
+    &.active {
+      color: var(--color-foreground-primary);
+      background: var(--color-accent-primary);
+    }
+  }
+}
+
+.design-md-button {
+  min-height: deprecated.$s-32;
+  margin: 0 deprecated.$s-12 deprecated.$s-8;
+  border: deprecated.$s-1 solid var(--panel-border-color);
+  border-radius: deprecated.$br-6;
+  color: var(--color-foreground-primary);
+  background: var(--color-background-secondary);
+  cursor: pointer;
+}
+
+.assistant-context {
+  margin: 0 deprecated.$s-16 deprecated.$s-8;
+  color: var(--color-foreground-secondary);
+  font-size: deprecated.$fs-11;
+}
+
+.assistant-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: deprecated.$s-8;
+  min-height: 0;
+  padding: deprecated.$s-8 deprecated.$s-12;
+  overflow-y: auto;
+}
+
+.message,
+.working {
+  padding: deprecated.$s-10 deprecated.$s-12;
+  border: deprecated.$s-1 solid var(--panel-border-color);
+  border-radius: deprecated.$br-8;
+  background: var(--color-background-secondary);
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
+.message.user {
+  align-self: flex-end;
+  max-width: 90%;
+  color: var(--color-foreground-primary);
+  background: var(--color-accent-primary);
+}
+
+.message.error {
+  color: var(--color-error-500);
+}
+
+.working {
+  color: var(--color-accent-primary);
+  animation: assistant-pulse 1.2s ease-in-out infinite;
+}
+
+.assistant-form {
+  display: flex;
+  flex-direction: column;
+  gap: deprecated.$s-8;
+  padding: deprecated.$s-12;
+  border-top: deprecated.$s-1 solid var(--panel-border-color);
+
+  textarea {
+    resize: none;
+    padding: deprecated.$s-10;
+    border: deprecated.$s-1 solid var(--panel-border-color);
+    border-radius: deprecated.$br-8;
+    color: var(--color-foreground-primary);
+    background: var(--color-background-primary);
+  }
+
+  button {
+    min-height: deprecated.$s-36;
+    border: 0;
+    border-radius: deprecated.$br-8;
+    color: var(--color-foreground-primary);
+    background: var(--color-accent-primary);
+    cursor: pointer;
+  }
+
+  button:disabled,
+  textarea:disabled {
+    opacity: deprecated.$op-5;
+    cursor: wait;
+  }
+}
+
+@keyframes assistant-pulse {
+  50% {
+    opacity: deprecated.$op-5;
+  }
+}
