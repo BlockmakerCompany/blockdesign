@@ -94,7 +94,7 @@
 
 .message,
 .working {
-  padding: deprecated.$s-10 deprecated.$s-12;
+  padding: deprecated.$s-8 deprecated.$s-12;
   border: deprecated.$s-1 solid var(--panel-border-color);
   border-radius: deprecated.$br-8;
   background: var(--color-background-secondary);
@@ -127,7 +127,7 @@
 
   textarea {
     resize: none;
-    padding: deprecated.$s-10;
+    padding: deprecated.$s-8;
     border: deprecated.$s-1 solid var(--panel-border-color);
     border-radius: deprecated.$br-8;
     color: var(--color-foreground-primary);
@@ -145,14 +145,14 @@
 
   button:disabled,
   textarea:disabled {
-    opacity: deprecated.$op-5;
+    opacity: 0.5;
     cursor: wait;
   }
 }
 
 @keyframes assistant-pulse {
   50% {
-    opacity: deprecated.$op-5;
+    opacity: 0.5;
   }
 }
 
