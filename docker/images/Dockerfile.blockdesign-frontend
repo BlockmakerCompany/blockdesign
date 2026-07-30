@@ -38,9 +38,12 @@ WORKDIR /build/frontend
 # Install JS dependencies (postinstall also builds plugins-runtime).
 RUN pnpm install --frozen-lockfile
 
-# Compile ClojureScript bundles (main app + web worker) and static assets.
-# shared.js is already committed, so no Emscripten needed.
-RUN pnpm run build:app && pnpm run build:app:assets
+# Rebrand user-facing source strings before compiling, then also process the
+# generated bundle so metadata and translations consistently use BlockDesign.
+RUN node ./scripts/rebrand-blockdesign.js src resources translations && \
+    pnpm run build:app && \
+    pnpm run build:app:assets && \
+    node ./scripts/rebrand-blockdesign.js resources/public
 
 # ---------------------------------------------------------------------------
 # Stage 2 — Final image (same base as penpotapp/frontend:2.16)
