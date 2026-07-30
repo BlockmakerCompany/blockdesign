@@ -30,4 +30,12 @@ if [ -n "$PENPOT_OIDC_NAME" ]; then
     "$CONFIG_JS"
 fi
 
+# Runtime flags may change without rebuilding the frontend image. Use a fresh
+# config.js URL on every container start so immutable asset caching cannot
+# preserve stale feature flags.
+RUNTIME_TAG="$(date +%s)"
+sed -i \
+  -e "s|js/config.js?version=[^\"]*|js/config.js?version=runtime-$RUNTIME_TAG|g" \
+  /var/www/app/index.html
+
 exec "$@"
