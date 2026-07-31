@@ -58,6 +58,7 @@ rsync -avr resources/public/ target/dist/
 # Rebrand only the generated bundle so internal source namespaces and formats
 # remain compatible with upstream Penpot.
 node ./scripts/rebrand-blockdesign.js target/dist;
+find target/dist/js -maxdepth 1 -name '*.js' -print0 | xargs -0 -n1 node --check;
 
 
 # Include all plugins on the bundle

@@ -20,7 +20,7 @@ const rebrandFile = async filePath => {
   if (!textExtensions.has(path.extname(filePath))) return;
 
   const source = await fs.readFile(filePath, "utf8");
-  const branded = source.replaceAll("Penpot", "BlockDesign v2.0");
+  const branded = source.replace(/\bPenpot\b/g, "BlockDesign v2.0");
   if (branded !== source) await fs.writeFile(filePath, branded);
 };
 
