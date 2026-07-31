@@ -5,6 +5,7 @@
 (ns app.main.ui.workspace.blockdesign-assistant
   (:require-macros [app.main.style :as stl])
   (:require
+   [app.common.colors :as clr]
    [app.common.types.text :as txt]
    [app.common.uuid :as uuid]
    [app.main.data.workspace :as dw]
@@ -19,6 +20,25 @@
    [rumext.v2 :as mf]))
 
 (def ^:private max-context-shapes 240)
+
+(def ^:private named-colors
+  {"black" "#000000"
+   "white" "#ffffff"
+   "gray" "#808080"
+   "grey" "#808080"
+   "red" "#ff0000"
+   "green" "#008000"
+   "blue" "#0000ff"})
+
+(defn- normalize-color
+  [value]
+  (when (string? value)
+    (let [value (str/trim value)
+          lower (.toLowerCase value)]
+      (cond
+        (clr/valid-hex-color? value) value
+        (contains? named-colors lower) (get named-colors lower)
+        :else nil))))
 
 (defn- serialize-shape
   [shape]
@@ -80,8 +100,10 @@
 
 (defn- update-shape
   [shape operation]
-  (let [fill (:fill operation)
-        stroke (:stroke operation)]
+  (let [fill? (contains? operation :fill)
+        stroke? (contains? operation :stroke)
+        fill (normalize-color (:fill operation))
+        stroke (normalize-color (:stroke operation))]
     (cond-> shape
       (:name operation) (assoc :name (:name operation))
       (:x operation) (assoc :x (:x operation))
@@ -91,8 +113,13 @@
       (:rotation operation) (assoc :rotation (:rotation operation))
       (:opacity operation) (assoc :opacity (:opacity operation))
       (and (= :text (:type shape)) (:text operation)) (assoc :content (text-content (:text operation)))
-      fill (assoc :fills [{:fill-color fill :fill-opacity 1}])
-      stroke (assoc :strokes [{:stroke-color stroke :stroke-width (or (:strokeWidth operation) 1) :stroke-style "solid" :stroke-opacity 1}]))))
+      fill? (assoc :fills (if fill [{:fill-color fill :fill-opacity 1}] []))
+      stroke? (assoc :strokes (if stroke
+                                [{:stroke-color stroke
+                                  :stroke-width (or (:strokeWidth operation) 1)
+                                  :stroke-style :solid
+                                  :stroke-opacity 1}]
+                                [])))))
 
 (defn- apply-operation!
   [operation objects]
@@ -117,6 +144,10 @@
                    :board :frame
                    :text :text
                    :rect)
+            fill? (contains? operation :fill)
+            stroke? (contains? operation :stroke)
+            fill (normalize-color (:fill operation))
+            stroke (normalize-color (:stroke operation))
             shape {:id (or id (uuid/next))
                    :type type
                    :name (or (:name operation) (tr "blockdesign.assistant.new-layer" "Nueva capa"))
@@ -127,14 +158,16 @@
                    :rotation 0
                    :opacity 1}
             shape (cond-> shape
-                    (:fill operation)
-                    (assoc :fills [{:fill-color (:fill operation) :fill-opacity 1}])
+                    fill?
+                    (assoc :fills (if fill [{:fill-color fill :fill-opacity 1}] []))
 
-                    (:stroke operation)
-                    (assoc :strokes [{:stroke-color (:stroke operation)
-                                      :stroke-width (or (:strokeWidth operation) 1)
-                                      :stroke-style "solid"
-                                      :stroke-opacity 1}])
+                    stroke?
+                    (assoc :strokes (if stroke
+                                      [{:stroke-color stroke
+                                        :stroke-width (or (:strokeWidth operation) 1)
+                                        :stroke-style :solid
+                                        :stroke-opacity 1}]
+                                      []))
 
                     (= type :text)
                     (assoc :content (text-content (:text operation))))]
