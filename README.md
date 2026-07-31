@@ -1,3 +1,206 @@
+# BlockDesign v2.0
+
+BlockDesign is Blockmaker's fully versioned design platform fork. The current
+base is Penpot `2.17.0`, distributed under MPL-2.0, with Blockmaker-owned source
+builds, branding, OIDC integration, deployment configuration, and native AI
+assistant.
+
+The production images are built from this repository. Do not replace them with
+`penpotapp/frontend`, `penpotapp/backend`, or `penpotapp/exporter`, and do not
+build old source with a mutable remote `penpotapp/devenv:latest` image.
+
+## BlockDesign development and deployment
+
+### Source and branches
+
+- Upstream remote: `https://github.com/penpot/penpot.git`
+- Blockmaker remote: `https://github.com/BlockmakerCompany/blockdesign`
+- Current upstream base: tag `2.17.0`
+- Current BlockDesign branch: `blockdesign-2.0-core-2.17`
+- Previous protected branch: `blockdesign-2.0-core-2.16`
+- Production image namespace: `ghcr.io/blockmakercompany`
+
+Keep upstream code and BlockDesign changes as separate commits. This makes
+upgrades reviewable and prevents generated assets or compatibility workarounds
+from being carried into a new upstream release.
+
+### BlockDesign customizations
+
+- User-facing branding is changed to **BlockDesign v2.0** only in generated
+  frontend bundles. Internal namespaces, file formats, API names, database
+  structures, and compatibility identifiers remain unchanged.
+- Daily Assistant provides OIDC authentication.
+- The workspace includes a native AI assistant in:
+  `frontend/src/app/main/ui/workspace/blockdesign_assistant.cljs`.
+- The frontend image packages `/assistant-api/` proxying to the Daily Assistant
+  backend through `docker/images/files/nginx-blockdesign.conf`.
+- Renderer, worker, frontend, backend, and exporter artifacts are compiled from
+  this repository. Do not copy renderer assets from an upstream runtime image.
+
+### Prerequisites
+
+- Docker with BuildKit
+- Git
+- At least 20 GB of free disk space
+- At least 8 GB of RAM; 16 GB is recommended
+
+The build toolchain image is approximately 5 GB.
+
+### Initial checkout
+
+```bash
+git clone https://github.com/BlockmakerCompany/blockdesign.git
+cd blockdesign
+git remote add upstream https://github.com/penpot/penpot.git
+git fetch upstream --tags
+git switch blockdesign-2.0-core-2.17
+```
+
+### Build the pinned toolchain
+
+Build the development image from the same source revision before compiling any
+application bundle:
+
+```bash
+docker build \
+  -t ghcr.io/blockmakercompany/blockdesign-devenv:2.17.0 \
+  -t ghcr.io/blockmakercompany/blockdesign-devenv:latest \
+  docker/devenv
+```
+
+`manage.sh` defaults to this Blockmaker image. Override it only when testing a
+deliberately versioned toolchain:
+
+```bash
+BLOCKDESIGN_DEVENV_IMAGE=ghcr.io/blockmakercompany/blockdesign-devenv \
+  ./manage.sh build-frontend-bundle
+```
+
+### Build application bundles
+
+```bash
+./manage.sh build-frontend-bundle
+./manage.sh build-backend-bundle
+./manage.sh build-exporter-bundle
+```
+
+The frontend build also compiles the Rust/WASM renderer, workers, plugins, and
+MCP plugin. Branding runs against `target/dist` after compilation so the source
+tree and internal compatibility names are not rewritten.
+
+### Build owned runtime images
+
+```bash
+export BLOCKDESIGN_VERSION=2.17.0
+
+./manage.sh build-frontend-docker-image
+./manage.sh build-backend-docker-image
+./manage.sh build-exporter-docker-image
+```
+
+This produces:
+
+```text
+ghcr.io/blockmakercompany/blockdesign-frontend:2.17.0
+ghcr.io/blockmakercompany/blockdesign-backend:2.17.0
+ghcr.io/blockmakercompany/blockdesign-exporter:2.17.0
+```
+
+Never deploy `latest` in production. Production Compose must reference the
+explicit release tag.
+
+### Deploy on the Daily Assistant server
+
+The deployment Compose project lives at `~/apps/daily-ai`.
+
+1. Back up PostgreSQL:
+
+   ```bash
+   docker exec penpot_postgres \
+     pg_dump -U penpot -d penpot -Fc \
+     > "$HOME/penpot-$(date +%Y%m%d-%H%M%S).dump"
+   ```
+
+2. Confirm `docker-compose.yml` references the same BlockDesign version for
+   frontend, backend, and exporter.
+
+3. Recreate only the BlockDesign services:
+
+   ```bash
+   cd ~/apps/daily-ai
+   docker compose up -d --force-recreate \
+     penpot-backend penpot-exporter blockdesign-frontend
+   ```
+
+4. Wait for the backend readiness endpoint before testing the browser:
+
+   ```bash
+   until curl -fsS http://127.0.0.1:9001/readyz; do sleep 2; done
+   ```
+
+The backend may require 30-60 seconds for database migrations. During that
+window Nginx can return a temporary `502`; do not repeatedly recreate the stack.
+
+Do not use `docker compose up -d --build --force-recreate` for routine
+BlockDesign deployments. The application images are built from this repository,
+while the Daily Assistant Compose project only deploys those versioned images.
+
+### Required production checks
+
+After every deployment verify:
+
+```bash
+curl -fsS https://blockdesign.blockmaker.net/ >/dev/null
+curl -fsS https://blockdesign.blockmaker.net/readyz
+```
+
+Then verify in a real authenticated browser:
+
+1. OIDC login.
+2. Existing shape selection and movement.
+3. Rectangle, circle, frame, text, and pencil creation.
+4. Save persistence after reload.
+5. WebSocket notifications.
+6. AI assistant response and native shape operations.
+7. Jira task search through Daily Assistant.
+8. Browser console and container logs contain no new errors.
+
+### Updating the upstream base
+
+Never recompile an old branch with a newer toolchain. Upgrade source and
+toolchain together:
+
+```bash
+git fetch upstream --tags
+git switch -c blockdesign-2.0-core-<version> <upstream-tag>
+```
+
+Reapply BlockDesign commits in this order:
+
+1. Workspace AI assistant and layout integration.
+2. Assistant translations.
+3. Generated-bundle branding.
+4. Nginx assistant proxy and runtime configuration.
+5. Blockmaker image naming and release documentation.
+
+Build all bundles and images with the new branch before changing production.
+Do not carry canvas, renderer, or pointer-event patches unless they are still
+reproducible against the new upstream release.
+
+### Licensing
+
+BlockDesign preserves the MPL-2.0 license and upstream copyright notices.
+Modified MPL-covered files remain available in this repository. Blockmaker
+branding and integrations do not remove upstream attribution or change the
+license obligations.
+
+---
+
+## Upstream project documentation
+
+The remaining README is the upstream project documentation retained for
+architecture, contribution, and licensing context.
+
 <img width="100%" src="https://github.com/user-attachments/assets/da17b160-f289-436f-b140-972083a08602" />
 
 [uri_license]: https://www.mozilla.org/en-US/MPL/2.0

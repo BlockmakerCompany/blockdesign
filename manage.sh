@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-export ORGANIZATION="penpotapp";
-export DEVENV_IMGNAME="$ORGANIZATION/devenv";
+export ORGANIZATION="${BLOCKDESIGN_DOCKER_NAMESPACE:-ghcr.io/blockmakercompany}";
+export DEVENV_IMGNAME="${BLOCKDESIGN_DEVENV_IMAGE:-$ORGANIZATION/blockdesign-devenv}";
 export DEVENV_NETWORK="penpot_shared";
 export DEVENV_DEFAULTS_FILE="docker/devenv/defaults.env";
 
@@ -1179,7 +1179,8 @@ function build-frontend-docker-image {
     rsync -avr --delete ./bundles/frontend/ ./docker/images/bundle-frontend/;
     pushd ./docker/images;
     docker build \
-        -t penpotapp/frontend:$CURRENT_BRANCH -t penpotapp/frontend:latest \
+        -t $ORGANIZATION/blockdesign-frontend:${BLOCKDESIGN_VERSION:-$CURRENT_BRANCH} \
+        -t $ORGANIZATION/blockdesign-frontend:latest \
         --build-arg BUNDLE_PATH="./bundle-frontend/" \
         -f Dockerfile.frontend .;
     popd;
@@ -1189,7 +1190,8 @@ function build-backend-docker-image {
     rsync -avr --delete ./bundles/backend/ ./docker/images/bundle-backend/;
     pushd ./docker/images;
     docker build \
-        -t penpotapp/backend:$CURRENT_BRANCH -t penpotapp/backend:latest \
+        -t $ORGANIZATION/blockdesign-backend:${BLOCKDESIGN_VERSION:-$CURRENT_BRANCH} \
+        -t $ORGANIZATION/blockdesign-backend:latest \
         --build-arg BUNDLE_PATH="./bundle-backend/" \
         -f Dockerfile.backend .;
     popd;
@@ -1199,7 +1201,8 @@ function build-exporter-docker-image {
     rsync -avr --delete ./bundles/exporter/ ./docker/images/bundle-exporter/;
     pushd ./docker/images;
     docker build \
-        -t penpotapp/exporter:$CURRENT_BRANCH -t penpotapp/exporter:latest \
+        -t $ORGANIZATION/blockdesign-exporter:${BLOCKDESIGN_VERSION:-$CURRENT_BRANCH} \
+        -t $ORGANIZATION/blockdesign-exporter:latest \
         --build-arg BUNDLE_PATH="./bundle-exporter/" \
         -f Dockerfile.exporter .;
     popd;
