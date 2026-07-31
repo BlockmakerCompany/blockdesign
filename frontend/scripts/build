@@ -55,6 +55,10 @@ sed -i "s/\.\/render.js/.\/render.js?version=$VERSION_TAG/g" resources/public/js
 
 rsync -avr resources/public/ target/dist/
 
+# Rebrand only the generated bundle so internal source namespaces and formats
+# remain compatible with upstream Penpot.
+node ./scripts/rebrand-blockdesign.js target/dist;
+
 
 # Include all plugins on the bundle
 rsync -avr ../plugins/dist/apps/ target/dist/plugins/;
@@ -62,4 +66,3 @@ rsync -avr ../plugins/dist/apps/ target/dist/plugins/;
 # Include the MCP plugin on the bundle
 mkdir -p target/dist/plugins/mcp;
 rsync -avr ../mcp/packages/plugin/dist/ target/dist/plugins/mcp/;
-

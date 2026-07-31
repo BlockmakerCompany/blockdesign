@@ -10094,3 +10094,51 @@ msgstr "Autosaved versions will be kept for %s days."
 #, unused
 msgid "workspace.viewport.click-to-close-path"
 msgstr "Click to close the path"
+
+msgid "blockdesign.assistant.title"
+msgstr "UI Assistant"
+
+msgid "blockdesign.assistant.subtitle"
+msgstr "Native BlockDesign 2.0 agent"
+
+msgid "blockdesign.assistant.welcome"
+msgstr "Tell me what you want to create or change. I will use the current selection and its children as context."
+
+msgid "blockdesign.assistant.scope-selection"
+msgstr "Selection"
+
+msgid "blockdesign.assistant.scope-page"
+msgstr "Page"
+
+msgid "blockdesign.assistant.scope-new"
+msgstr "New"
+
+msgid "blockdesign.assistant.page-context"
+msgstr "%s layers from the current page"
+
+msgid "blockdesign.assistant.selection-context"
+msgstr "%s layers in context"
+
+msgid "blockdesign.assistant.working"
+msgstr "Generating response and applying native changes…"
+
+msgid "blockdesign.assistant.placeholder"
+msgstr "Example: modernize this component and improve its visual hierarchy"
+
+msgid "blockdesign.assistant.send"
+msgstr "Send to agent"
+
+msgid "blockdesign.assistant.new-layer"
+msgstr "New layer"
+
+msgid "blockdesign.assistant.page"
+msgstr "Page"
+
+msgid "blockdesign.assistant.applied"
+msgstr "%s native changes were applied."
+
+msgid "blockdesign.assistant.request-error"
+msgstr "The assistant returned error %s."
+
+msgid "blockdesign.assistant.network-error"
+msgstr "The assistant could not be reached."

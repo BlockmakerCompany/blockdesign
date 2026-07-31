@@ -27,6 +27,7 @@ COPY ./files/nginx-mcp-locations.conf.template /tmp/nginx-mcp-locations.conf.tem
 COPY ./files/nginx-security-headers.conf /etc/nginx/nginx-security-headers.conf
 COPY ./files/nginx-mime.types /etc/nginx/mime.types
 COPY ./files/nginx-external-locations.conf /etc/nginx/overrides/location.d/external-locations.conf
+COPY ./files/nginx-blockdesign.conf /etc/nginx/overrides/server.d/blockdesign.conf
 COPY ./files/nginx-entrypoint.sh /entrypoint.sh
 
 RUN chown -R 1001:0 /var/cache/nginx; \
